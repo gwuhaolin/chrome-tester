@@ -1,4 +1,4 @@
-[![NPM](https://nodei.co/npm/chrome-tester.png)](https://nodei.co/npm/chrome-runner/)
+[![NPM](https://nodei.co/npm/chrome-tester.png)](https://nodei.co/npm/chrome-tester/)
 # Chrome Tester
 web page auto tester on chrome
 
