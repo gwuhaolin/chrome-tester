@@ -1,6 +1,10 @@
-[![NPM](https://nodei.co/npm/chrome-tester.png)](https://nodei.co/npm/chrome-tester/)
-# Chrome Tester
-web page auto tester on chrome
+[![Npm Package](https://img.shields.io/npm/v/chrome-tester.svg?style=flat-square)](https://www.npmjs.com/package/chrome-tester)
+[![Build Status](https://img.shields.io/travis/gwuhaolin/chrome-tester.svg?style=flat-square)](https://travis-ci.org/gwuhaolin/chrome-tester)
+[![Dependency Status](https://david-dm.org/gwuhaolin/chrome-tester.svg?style=flat-square)](https://npmjs.org/package/chrome-tester)
+[![Npm Downloads](http://img.shields.io/npm/dm/chrome-tester.svg?style=flat-square)](https://www.npmjs.com/package/chrome-tester)
+
+# chrome-tester
+Web page auto tester with headless chrome
 
 ## Use
 ```js

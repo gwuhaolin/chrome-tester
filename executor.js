@@ -1,5 +1,5 @@
 const EventEmitter = require('events');
-const browserScript = require('./browser_script');
+const { wrapWithPromise } = require('./util');
 const package_json = require('./package.json');
 
 /**
@@ -91,7 +91,7 @@ class Executor extends EventEmitter {
         if (injectScript && typeof injectScript === 'string') {
           await Runtime.evaluate({
             awaitPromise: true,
-            expression: browserScript.injectScript(injectScript),
+            expression: wrapWithPromise(injectScript),
           });
         }
 
@@ -101,7 +101,7 @@ class Executor extends EventEmitter {
           const { result, exceptionDetails } = await Runtime.evaluate({
             awaitPromise: true,
             returnByValue: true,
-            expression: browserScript.unitTest(test.script),
+            expression: wrapWithPromise(test.script),
           });
           if (exceptionDetails) {
             this.emit('test-failed', test, exceptionDetails);

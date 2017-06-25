@@ -1,5 +1,5 @@
 {
-  "name": "chrome-test",
+  "name": "chrome-tester",
   "version": "0.0.1",
   "description": "web page auto test use chrome",
   "main": "index.js",
@@ -9,7 +9,7 @@
   "author": "gwuhaolin",
   "license": "ISC",
   "dependencies": {
-    "chrome-pool": "^1.0.4"
+    "chrome-pool": "^1.0.6"
   },
   "devDependencies": {
     "mocha": "^3.4.2"

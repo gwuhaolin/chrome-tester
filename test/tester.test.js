@@ -49,7 +49,7 @@ describe('Tester', function () {
     return await tester.destroy();
   });
 
-  it('injectScript', function (done) {
+  it('inject script', function (done) {
     (async () => {
       const tester = new Tester();
       await tester.init();
@@ -64,9 +64,9 @@ describe('Tester', function () {
         ]
       }
       const executor = await tester.exec(job);
-      executor.on('test-done', (test) => {
+      executor.on('test-pass', (test, value) => {
         if (test.des === 'injectScript') {
-          assert.equal(test.result, 520);
+          assert.equal(value, 520);
           done();
         }
       });
