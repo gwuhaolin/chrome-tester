@@ -10,7 +10,7 @@ describe('Tester', function () {
     const tester = new Tester();
     await tester.init();
     const job = {
-      url: 'https://ke.qq.com',
+      url: 'https://github.com/',
       referrer: '',
       cookies: {},
       headers: {},
@@ -55,7 +55,7 @@ describe('Tester', function () {
       const tester = new Tester();
       await tester.init();
       const job = {
-        url: 'https://ke.qq.com',
+        url: 'https://github.com/',
         injectScript: `window.$=520`,
         tests: [
           {
@@ -81,7 +81,7 @@ describe('Tester', function () {
       const tester = new Tester();
       await tester.init();
       const job = {
-        url: 'https://ke.qq.com',
+        url: 'https://github.com/',
         tests: [
           {
             des: 'succ test',
@@ -115,7 +115,7 @@ describe('Tester', function () {
       const tester = new Tester();
       await tester.init();
       const job = {
-        url: 'https://ke.qq.com',
+        url: 'https://github.com/',
         tests: [
           {
             des: 'log test',
