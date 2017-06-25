@@ -36,15 +36,17 @@ executor.on('test-failed', (test, exceptionDetails) => {
   assert.equal(exceptionDetails.exception.value, 1);
 });
 await executor.wait();
+const dom = await executor.getDOM();
 await tester.destroy();
 ```
 - `tester.init()`: await tester be ready
 - `tester.exec(job)`: run a test job, this will return a `executor` used to listen on some events
-- `await executor.wait()`: await until this test job has done
+- `await executor.wait()`: await until all unit tests job has done
+- `await executor.getDOM()`: get page current dom node
 -  `tester.destroy()`: destroy this tester, close chrome, release resource
 
 ### tester.exec options
--  url {string}: web page url
+-  url {string}: required, web page url
 -  referrer {string}: http request referrer header
 -  cookies {Object}: http request cookies
 -  headers {Object}: http request headers
@@ -63,7 +65,7 @@ await tester.destroy();
 - test-pass: unit test exec complete
 - test-failed: unit test exec complete
 - done: exec complete
-- load-failed: page cant load
+- pageload-failed: page cant load
 - network-failed: Network.loadingFailed event
 - network-received: Network.loadingFailed event
 

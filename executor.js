@@ -10,23 +10,22 @@ const package_json = require('./package.json');
  * - test-pass: unit test exec complete
  * - test-failed: unit test exec complete
  * - done: exec complete
- * - load-failed: page cant load
+ * - pageload-failed: page cant load
  * - network-failed: Network.loadingFailed event
  * - network-received: Network.loadingFailed event
  */
 class Executor extends EventEmitter {
 
-  constructor(tab, job) {
+  constructor(protocol, job) {
     super();
-    this.tab = tab;
+    this.protocol = protocol;
     this.job = job;
   }
 
   async start() {
-    return new Promise(async (resolve, reject) => {
-      const { protocol } = this.tab;
-      const { Page, Network, Runtime, Console } = protocol;
-      const { url, referrer, cookies, headers, injectScript, tests } = this.job;
+    return new Promise(async (resolve) => {
+      const { Page, Network, Runtime, Console } = this.protocol;
+      const { url, referrer, cookies, headers, injectScript, tests = [] } = this.job;
 
       // inject cookies
       if (cookies && typeof cookies === 'object') {
@@ -55,20 +54,22 @@ class Executor extends EventEmitter {
       // detect page load failed error
       (() => {
         // store the first request which is request web page
-        let requestId;
+        let firstRequestId;
         // https://chromedevtools.github.io/devtools-protocol/tot/Network/#event-requestWillBeSent
         Network.requestWillBeSent((params) => {
-          requestId = params.requestId;
+          if (firstRequestId === undefined) {
+            firstRequestId = params.requestId;
+          }
         });
         // https://chromedevtools.github.io/devtools-protocol/tot/Network/#event-requestWillBeSent
         Network.loadingFailed((params) => {
-          if (params.requestId === requestId) {
+          this.emit('network-failed', params);
+
+          if (params.requestId === firstRequestId) {
             // page cant load
-            this.emit('load-failed', params);
+            this.emit('pageload-failed', params);
             this.emit('done');
-            reject();
-          } else {
-            this.emit('network-failed', params);
+            resolve();
           }
         });
         // https://chromedevtools.github.io/devtools-protocol/tot/Network/#event-responseReceived
@@ -109,6 +110,7 @@ class Executor extends EventEmitter {
             this.emit('test-pass', test, result.value);
           }
         }
+
         // exec job complete
         this.emit('done');
         resolve();
@@ -121,6 +123,13 @@ class Executor extends EventEmitter {
         referrer,
       });
     });
+  }
+
+  async getDOM() {
+    const { DOM } = this.protocol;
+    // https://chromedevtools.github.io/devtools-protocol/tot/DOM/#method-getDocument
+    const ret = await DOM.getDocument();
+    return ret.root;
   }
 
   async wait() {

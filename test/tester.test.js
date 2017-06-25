@@ -17,40 +17,83 @@ describe('Tester', function () {
       injectScript: null,
       tests: [
         {
-          script: `console.log(123)`
+          script: `return 123`
+        },
+        {
+          script: `throw 123`
         }
       ]
     }
     const executor = await tester.exec(job);
+
     executor.on('log', (consoleMessage) => {
-      console.log('log', consoleMessage);
+      assert.notEqual(consoleMessage, null);
     });
 
-    executor.on('test-done', (test) => {
-      console.log('test-done', test);
+    executor.on('test-pass', (test, value) => {
+      assert.notEqual(test, null);
+      assert.notEqual(value, null);
     });
 
-    executor.on('done', async () => {
-      console.log('done');
+    executor.on('test-failed', (test, exceptionDetails) => {
+      assert.notEqual(test, null);
+      assert.notEqual(exceptionDetails, null);
     });
 
-    executor.on('load-failed', () => {
-      console.log('load-failed');
+    executor.on('done', () => {
     });
 
-    executor.on('network-failed', (params) => {
-      console.log('network-failed', params);
+    executor.on('pageload-failed', (request) => {
+      assert.notEqual(request, null);
     });
 
-    executor.on('network-received', (params) => {
-      console.log('network-received', params);
+    executor.on('network-failed', (request) => {
+      assert.notEqual(request, null);
+    });
+
+    executor.on('network-received', (request) => {
+      assert.notEqual(request, null);
     });
 
     await executor.wait();
     return await tester.destroy();
   });
 
-  it('inject script', function (done) {
+  it('pageload-failed', function (done) {
+    (async () => {
+      const tester = new Tester();
+      await tester.init();
+      const job = {
+        url: 'https://cant.cant-cant.cant',
+      }
+      const executor = await tester.exec(job);
+      executor.on('pageload-failed', (params) => {
+        assert.equal(params.type, 'Document');
+        done();
+      });
+      await executor.wait();
+      await tester.destroy();
+    })();
+  });
+
+  it('network-failed', function (done) {
+    (async () => {
+      const tester = new Tester();
+      await tester.init();
+      const job = {
+        url: 'https://cant.cant-cant.cant',
+      }
+      const executor = await tester.exec(job);
+      executor.on('network-failed', (params) => {
+        assert.equal(params.type, 'Document');
+        done();
+      });
+      await executor.wait();
+      await tester.destroy();
+    })();
+  });
+
+  it('inject script before test', function (done) {
     (async () => {
       const tester = new Tester();
       await tester.init();
@@ -76,7 +119,7 @@ describe('Tester', function () {
     })();
   });
 
-  it('unit test succ or fail', function (done) {
+  it('test succ and test fail', function (done) {
     (async () => {
       const tester = new Tester();
       await tester.init();
@@ -133,5 +176,17 @@ describe('Tester', function () {
       done();
       await tester.destroy();
     })();
+  });
+
+  it('get DOM snapshot after wait', async function () {
+    const tester = new Tester();
+    await tester.init();
+    const job = {
+      url: 'https://github.com/',
+    }
+    const executor = await tester.exec(job);
+    const dom = await executor.getDOM();
+    assert.equal(dom.nodeName, '#document');
+    await tester.destroy();
   })
 })

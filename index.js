@@ -6,7 +6,7 @@ class Tester {
   async init() {
     this.chromePool = await ChromePool.new({
       maxTab: 30,
-      protocols: ['Page', 'Network', 'Runtime', 'Console'],
+      protocols: ['Page', 'Network', 'Runtime', 'Console', 'DOM'],
     });
   }
 
@@ -35,10 +35,10 @@ class Tester {
    * @returns {Promise.<Executor>}
    */
   async exec(job) {
-    const tab = await this.chromePool.require();
-    const executor = new Executor(tab, job);
+    const { protocol, tabId } = await this.chromePool.require();
+    const executor = new Executor(protocol, job);
     executor.once('done', async () => {
-      await this.chromePool.release(executor.tab.tabId);
+      await this.chromePool.release(tabId);
     });
     setTimeout(executor.start.bind(executor), 0);
     return executor;
