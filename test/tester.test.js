@@ -188,5 +188,6 @@ describe('Tester', function () {
     const dom = await executor.getDOM();
     assert.equal(dom.nodeName, '#document');
     await tester.destroy();
-  })
+  });
+
 })
