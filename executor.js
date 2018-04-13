@@ -1,5 +1,5 @@
 const EventEmitter = require('events');
-const { wrapWithPromise } = require('./util');
+const {wrapWithPromise} = require('./util');
 const package_json = require('./package.json');
 
 /**
@@ -24,8 +24,8 @@ class Executor extends EventEmitter {
 
   async start() {
     return new Promise(async (resolve) => {
-      const { Page, Network, Runtime, Console } = this.protocol;
-      const { url, referrer, cookies, headers, injectScript, tests = [] } = this.job;
+      const {Page, Network, Runtime, Console} = this.protocol;
+      const {url, referrer, cookies, headers, injectScript, tests = []} = this.job;
 
       // inject cookies
       if (cookies && typeof cookies === 'object') {
@@ -81,7 +81,14 @@ class Executor extends EventEmitter {
       // collect page log
       // https://chromedevtools.github.io/devtools-protocol/tot/Console/#event-messageAdded
       Console.messageAdded((consoleMessage) => {
-        this.emit('log', consoleMessage.message);
+        const log = consoleMessage.message;
+        this.emit('log', log);
+
+        // 如果是error错误，就认为是未捕获异常
+        const {level} = log;
+        if (level === 'error') {
+          this.emit('error', log);
+        }
       });
 
 
@@ -99,7 +106,7 @@ class Executor extends EventEmitter {
         // run unit test after injectScript has been inject
         for (let i = 0; i < tests.length; i++) {
           let test = tests[i];
-          const { result, exceptionDetails } = await Runtime.evaluate({
+          const {result, exceptionDetails} = await Runtime.evaluate({
             awaitPromise: true,
             returnByValue: true,
             expression: wrapWithPromise(test.script),
@@ -116,6 +123,13 @@ class Executor extends EventEmitter {
         resolve();
       });
 
+      // 把为捕获的异常通过console.error输出
+      Page.addScriptToEvaluateOnNewDocument({
+        source: `
+          window.onerror = console.error;
+          window.addEventListener("unhandledrejection",console.error);
+  `
+      });
       // to go page
       // https://chromedevtools.github.io/devtools-protocol/tot/Page/
       await Page.navigate({
@@ -126,7 +140,7 @@ class Executor extends EventEmitter {
   }
 
   async getDOM() {
-    const { DOM } = this.protocol;
+    const {DOM} = this.protocol;
     // https://chromedevtools.github.io/devtools-protocol/tot/DOM/#method-getDocument
     const ret = await DOM.getDocument();
     return ret.root;

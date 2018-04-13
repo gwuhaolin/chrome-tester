@@ -62,6 +62,7 @@ await tester.destroy();
    
 ### executor events table
 - log: chrome console out
+- error: window.onerror | unhandledrejection
 - test-pass: unit test exec complete
 - test-failed: unit test exec complete
 - done: exec complete
